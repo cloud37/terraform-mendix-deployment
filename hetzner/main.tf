@@ -11,11 +11,24 @@ provider "hcloud" {
   token = var.hcloud_token
 }
 
-resource "hcloud_server" "mendix_01" {
-    name = var.srv_mendix_name
-    image = "ubuntu-20.04"
-    server_type = "cx11"
-    location = "nbg1"
+module "network" {
+  source = "./modules/network"
 }
 
-#00SOZrHGmt3ZfZzWLwl850ZwClnYwZNBwD3r0GHR4keC6MstRmCWPJBRnsoePYlm
+module "firewall" {
+  source = "./modules/firewall"
+}
+
+module "database" {
+  source        = "./modules/database"
+  network_id    = module.network.network_id
+  firewall_id   = module.firewall.firewall_id
+  subnet_id     = module.network.subnet_id
+}
+
+module "application" {
+  source        = "./modules/application"
+  network_id    = module.network.network_id
+  firewall_id   = module.firewall.firewall_id
+  subnet_id     = module.network.subnet_id
+}
