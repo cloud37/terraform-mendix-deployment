@@ -65,8 +65,6 @@ su - mendix -c "mkdir -p ~/.m2ee"
 
 # Configure Mendix
 log "Configuring Mendix..."
-# Add your configuration commands here
-# For example:
 # echo "mxnode.mxjar_repo: https://download.mendix.com/runtimes/" > /home/mendix/.m2ee/m2ee.yaml
 # chown mendix:mendix /home/mendix/.m2ee/m2ee.yaml
 
