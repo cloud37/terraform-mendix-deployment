@@ -20,12 +20,44 @@ resource "hcloud_server" "application" {
 
   firewall_ids = [var.firewall_id]
 
-  user_data = <<-EOF
-              #!/bin/bash
-              apt-get update
-              apt-get install -y nginx
-              # Configure Nginx to listen on both public and private interfaces
-              sed -i 's/listen 80 default_server;/listen 80 default_server;\n    listen 10.0.1.2:80;/' /etc/nginx/sites-available/default
-              systemctl restart nginx
-              EOF
+  # SSH key for provisioner access
+  ssh_keys = [var.ssh_key_id]
+
+  # We need to wait for the server to be ready before provisioning
+  provisioner "remote-exec" {
+    inline = ["echo 'Server is ready!'"]
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.ssh_private_key_path)
+      host        = self.ipv4_address
+    }
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/../scripts/install_mendix_deps.sh"
+    destination = "/tmp/install_mendix_deps.sh"
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.ssh_private_key_path)
+      host        = self.ipv4_address
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/install_mendix_deps.sh",
+      "/tmp/install_mendix_deps.sh",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.ssh_private_key_path)
+      host        = self.ipv4_address
+    }
+  }
 }

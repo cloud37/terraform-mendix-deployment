@@ -20,13 +20,44 @@ resource "hcloud_server" "database" {
 
   firewall_ids = [var.firewall_id]
 
-  user_data = <<-EOF
-              #!/bin/bash
-              apt-get update
-              apt-get install -y postgresql postgresql-contrib
-              # Configure PostgreSQL to listen on the private network interface
-              echo "listen_addresses = '10.0.1.3'" >> /etc/postgresql/12/main/postgresql.conf
-              echo "host    all    all    10.0.1.0/24    md5" >> /etc/postgresql/12/main/pg_hba.conf
-              systemctl restart postgresql
-              EOF
+  # SSH key for provisioner access
+  ssh_keys = [var.ssh_key_id]
+
+  # We need to wait for the server to be ready before provisioning
+  provisioner "remote-exec" {
+    inline = ["echo 'Server is ready!'"]
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.ssh_private_key_path)
+      host        = self.ipv4_address
+    }
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/../scripts/install_postgres_deps.sh"
+    destination = "/tmp/install_postgres_deps.sh"
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.ssh_private_key_path)
+      host        = self.ipv4_address
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/install_postgres_deps.sh",
+      "/tmp/install_postgres_deps.sh",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.ssh_private_key_path)
+      host        = self.ipv4_address
+    }
+  }
 }
