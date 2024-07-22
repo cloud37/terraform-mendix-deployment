@@ -15,8 +15,15 @@ module "network" {
   source = "./modules/network"
 }
 
+module "bastion" {
+  source               = "./modules/bastion"
+  ssh_key_id           = var.ssh_key_id
+  ssh_private_key_path = var.ssh_private_key_path
+}
+
 module "firewall" {
   source = "./modules/firewall"
+  bastion_ip = module.bastion.bastion_ip
 }
 
 module "database" {
