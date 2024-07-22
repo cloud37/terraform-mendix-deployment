@@ -20,10 +20,8 @@ resource "hcloud_server" "database" {
 
   firewall_ids = [var.firewall_id]
 
-  # SSH key for provisioner access
   ssh_keys = [var.ssh_key_id]
 
-  # We need to wait for the server to be ready before provisioning
   provisioner "remote-exec" {
     inline = ["echo 'Server is ready!'"]
 
