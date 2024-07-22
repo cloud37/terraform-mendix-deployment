@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     hcloud = {
-      source = "hetznercloud/hcloud"
+      source  = "hetznercloud/hcloud"
       version = "~> 1.45"
     }
   }
@@ -19,8 +19,7 @@ resource "hcloud_server" "database" {
   }
 
   firewall_ids = [var.firewall_id]
-
-  ssh_keys = [var.ssh_key_id]
+  ssh_keys     = [var.ssh_key_id]
 
   provisioner "remote-exec" {
     inline = ["echo 'Server is ready!'"]

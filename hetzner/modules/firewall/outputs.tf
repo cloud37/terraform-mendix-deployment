@@ -1,3 +1,4 @@
 output "firewall_id" {
-  value = hcloud_firewall.main.id
+  description = "ID of the created firewall"
+  value       = hcloud_firewall.main.id
 }

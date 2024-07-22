@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     hcloud = {
-      source = "hetznercloud/hcloud"
+      source  = "hetznercloud/hcloud"
       version = "~> 1.45"
     }
   }
@@ -20,15 +20,19 @@ module "firewall" {
 }
 
 module "database" {
-  source        = "./modules/database"
-  network_id    = module.network.network_id
-  firewall_id   = module.firewall.firewall_id
-  subnet_id     = module.network.subnet_id
+  source               = "./modules/database"
+  network_id           = module.network.network_id
+  firewall_id          = module.firewall.firewall_id
+  subnet_id            = module.network.subnet_id
+  ssh_key_id           = var.ssh_key_id
+  ssh_private_key_path = var.ssh_private_key_path
 }
 
 module "application" {
-  source        = "./modules/application"
-  network_id    = module.network.network_id
-  firewall_id   = module.firewall.firewall_id
-  subnet_id     = module.network.subnet_id
+  source               = "./modules/application"
+  network_id           = module.network.network_id
+  firewall_id          = module.firewall.firewall_id
+  subnet_id            = module.network.subnet_id
+  ssh_key_id           = var.ssh_key_id
+  ssh_private_key_path = var.ssh_private_key_path
 }
